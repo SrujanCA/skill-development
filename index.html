@@ -2,27 +2,165 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Login Page</title>
-  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login / Signup / Dashboard</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Segoe UI", sans-serif; }
+    body { height: 100vh; display: flex; justify-content: center; align-items: center; background: linear-gradient(135deg, #667eea, #764ba2); }
+    .container { display: none; background: #fff; padding: 2rem; border-radius: 1rem; box-shadow: 0 10px 25px rgba(0,0,0,0.2); width: 350px; text-align: center; }
+    h2, h1 { margin-bottom: 1.5rem; color: #333; }
+    .form-group { margin-bottom: 1rem; text-align: left; position: relative; }
+    .form-group label { display: block; margin-bottom: 0.3rem; font-size: 14px; color: #444; }
+    .form-group input { width: 100%; padding: 0.8rem; border: 1px solid #ccc; border-radius: 0.5rem; outline: none; }
+    .form-group input:focus { border-color: #667eea; }
+    .btn { width: 100%; padding: 0.9rem; background: linear-gradient(135deg, #667eea, #764ba2); border: none; border-radius: 0.5rem; color: white; font-weight: bold; cursor: pointer; margin-top: 1rem; }
+    .btn:hover { background: linear-gradient(135deg, #5a67d8, #6b46c1); }
+    .extra-links { margin-top: 1rem; font-size: 14px; }
+    .extra-links a { color: #667eea; text-decoration: none; cursor: pointer; }
+    .extra-links a:hover { text-decoration: underline; }
+
+    /* Character Emoji */
+    .character {
+      font-size: 50px;
+      margin-bottom: 10px;
+      transition: all 0.3s ease;
+    }
+    .password-toggle {
+      position: absolute;
+      right: 10px;
+      top: 38px;
+      cursor: pointer;
+      font-size: 18px;
+      background: none;
+      border: none;
+    }
+  </style>
 </head>
 <body>
-
-  <div class="login-box">
-    <h2 id="greeting">Welcome</h2>
-
+  <!-- Login Section -->
+  <div class="container" id="loginSection">
+    <div class="character" id="character">🙈</div>
+    <h2>Login</h2>
     <form id="loginForm">
-      <label>Username</label>
-      <input type="text" id="username" required>
-
-      <label>Password</label>
-      <input type="password" id="password" required>
-      
-      <button type="submit">Login</button>
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" id="username" required>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="password" required>
+        <button type="button" class="password-toggle" onclick="togglePassword('password')">👁️</button>
+      </div>
+      <button type="submit" class="btn">Login</button>
     </form>
-    
-    <p id="message"></p>
+    <div class="extra-links">
+      <a onclick="showSignup()">Create Account</a>
+    </div>
   </div>
 
-  <script src="script.js"></script>
+  <!-- Signup Section -->
+  <div class="container" id="signupSection">
+    <div class="character" id="characterSignup">🙈</div>
+    <h2>Sign Up</h2>
+    <form id="signupForm">
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" id="newUsername" required>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="newPassword" required>
+        <button type="button" class="password-toggle" onclick="togglePassword('newPassword', 'characterSignup')">👁️</button>
+      </div>
+      <button type="submit" class="btn">Sign Up</button>
+    </form>
+    <div class="extra-links">
+      <a onclick="showLogin()">Already have an account? Login</a>
+    </div>
+  </div>
+
+  <!-- Dashboard Section -->
+  <div class="container" id="dashboardSection">
+    <h1 id="welcomeMessage">Welcome Home 🎉</h1>
+    <button class="btn" onclick="logout()">Logout</button>
+  </div>
+
+  <script>
+    const loginSection = document.getElementById("loginSection");
+    const signupSection = document.getElementById("signupSection");
+    const dashboardSection = document.getElementById("dashboardSection");
+
+    // Show sections
+    function showLogin() {
+      loginSection.style.display = "block";
+      signupSection.style.display = "none";
+      dashboardSection.style.display = "none";
+    }
+    function showSignup() {
+      loginSection.style.display = "none";
+      signupSection.style.display = "block";
+      dashboardSection.style.display = "none";
+    }
+    function showDashboard() {
+      loginSection.style.display = "none";
+      signupSection.style.display = "none";
+      dashboardSection.style.display = "block";
+      const username = localStorage.getItem("username") || "Guest";
+      document.getElementById("welcomeMessage").textContent = `Welcome Home, ${username} 🎉`;
+    }
+
+    // Toggle password visibility with character animation
+    function togglePassword(inputId, charId = "character") {
+      const input = document.getElementById(inputId);
+      const character = document.getElementById(charId);
+      if (input.type === "password") {
+        input.type = "text";
+        character.textContent = "👀"; // open eyes
+      } else {
+        input.type = "password";
+        character.textContent = "🙈"; // covering eyes
+      }
+    }
+
+    // Signup
+    document.getElementById("signupForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const newUser = document.getElementById("newUsername").value;
+      const newPass = document.getElementById("newPassword").value;
+      localStorage.setItem("username", newUser);
+      localStorage.setItem("password", newPass);
+      alert("Account created ✅ Please login.");
+      showLogin();
+    });
+
+    // Login
+    document.getElementById("loginForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const username = document.getElementById("username").value;
+      const password = document.getElementById("password").value;
+      const savedUser = localStorage.getItem("username");
+      const savedPass = localStorage.getItem("password");
+
+      if (username === savedUser && password === savedPass) {
+        localStorage.setItem("isLoggedIn", "true");
+        showDashboard();
+      } else {
+        alert("Invalid username or password ❌");
+      }
+    });
+
+    // Logout
+    function logout() {
+      localStorage.removeItem("isLoggedIn");
+      showLogin();
+    }
+
+    // Session check
+    if (localStorage.getItem("isLoggedIn") === "true") {
+      showDashboard();
+    } else {
+      showLogin();
+    }
+  </script>
 </body>
 </html>
